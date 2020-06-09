@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>RPS Online Game</title>
+    <script src="{{ url_for('static', filename = 'game.js') }}"></script>
+    <style type="text/css">
+      body {
+        background-color: black;
+      }
+
+      h1 {
+        color: #53a2be;
+      }
+
+      /* Lobby Css */
+      .lobbycontent {
+        margin-top: 125px;
+        background-color: #0a2239;
+        width: fill;
+        height: 500px;
+        /*margin-left: 350px;*/
+        text-align: center;
+      }
+
+      #title {
+        font-family: Georgia, serif;
+        font-size: 50px;
+      }
+
+      #winnerp {
+        font-size: 30px;
+        color: green;
+        text-align: center;
+      }
+
+      #tiedp {
+        font-size: 50px;
+        color: yellow;
+        text-align: center;
+      }
+
+      #waitingMessage {
+        margin-top: 150px;
+        font-size: 50px;
+        width: 600px;
+        text-align: center;
+        color: red;
+      }
+
+      #waitStatus {
+        display: block;
+      }
+
+      #waitMove {
+        display: none;
+      }
+
+      #logout {
+        border-radius: 5px;
+        font-size: 20px;
+        background-color: #53a2be;
+        margin-left: 25px;
+      }
+
+      .logoutDiv {
+        margin-top: -50px;
+      }
+
+      #gameStarted {
+        margin-top: 80px;
+        display: none;
+      }
+
+      #WinnerStatus {
+        display: none;
+      }
+
+      #TiedStatus {
+        margin-top: 100px;
+        display: none;
+      }
+
+      #playAgain {
+        border-radius: 6px;
+        background-color: white;
+        font-size: 35px;
+        color: green;
+      }
+
+      td {
+        border: solid white 1px;
+        padding: 0.5em;
+        padding-right: 1em;
+        text-align: center;
+        background-color: #53a2be;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="lobbycontent">
+      <center>
+        <h1 id="title">RPS Online Game</h1>
+        <p></p>
+        <div id="gameStarted">
+          <table>
+            <tr>
+              <td>Rock</td>
+              <td>Paper</td>
+              <td>Scissor</td>
+            </tr>
+            <tr>
+              <td><button onclick="playerMove(this.id)" type="submit" id="rock_btn"><img src="https://static.thenounproject.com/png/88661-200.png"></button></td>
+              <td><button onclick="playerMove(this.id)" type="submit" id="paper_btn"><img src="https://static.thenounproject.com/png/477922-200.png"></button></td>
+              <td><button onclick="playerMove(this.id)" type="submit" id="scissor_btn"><img src="https://static.thenounproject.com/png/88666-200.png"></button></td>
+            </tr>
+          </table>
+        </div>
+        <div id="TiedStatus">
+          <p id="tiedp"> ! Match Tied ! </p>
+          <p></p>
+          <button type="submit" id="playAgain" onclick="playAgain()">Play Again</button>
+        </div>
+        <div id="WinnerStatus">
+          <p id="winnerp"> WINNER: </p>
+          <table>
+            <tr>
+              <td><img id="winnerimg" src="#"></td>
+            </tr>
+          </table>
+          <p></p>
+          <button type="submit" id="playAgain" onclick="playAgain()">Play Again</button>
+        </div>
+        <div id="waitStatus">
+          <p id="waitingMessage">Waiting for player...</p>
+        </div>
+        <div id="waitMove">
+          <p id="waitingMessage">Waiting for other player to choose...</p>
+        </div>
+      </center>
+    </div>
+
+    <div class="logoutDiv">
+      <form action="/thanks" method="POST">
+        <button id="logout" type="submit" name="button" onclick="exitGame()">Leave Game</button>
+      </form>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename = 'game.js') }}"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+        socket.on('connect', function() {
+          socket.emit('addPlayer')
+          socket.emit('checkPlayers')
+        });
+
+        socket.on('playersOnline', function() {
+          waiting = document.getElementById('waitStatus')
+          waiting.style.display = 'none'
+          document.getElementById('gameStarted').style.display = 'block'
+        });
+
+        socket.on('playersNOTOnline', function() {
+          waiting = document.getElementById('waitStatus')
+          waiting.style.display = 'block'
+          document.getElementById('gameStarted').style.display = 'none'
+        });
+
+
+        socket.on('CheckWinner', function(moves) {
+          document.getElementById('waitMove').style.display = 'none'
+          console.log(moves[1]) // First
+          console.log(moves[0]) // Second
+          checkWinner(String(moves[1]), String(moves[0]))
+        });
+
+        socket.on('showWinner', function(winner) {
+          if (winner == 'paper_btn') {
+            document.getElementById('winnerimg').src = 'https://static.thenounproject.com/png/477922-200.png'
+          } else if (winner == 'scissor_btn') {
+            document.getElementById('winnerimg').src = 'https://static.thenounproject.com/png/88666-200.png'
+          } else if (winner == 'rock_btn') {
+            document.getElementById('winnerimg').src = 'https://static.thenounproject.com/png/88661-200.png'
+          }
+          document.getElementById('WinnerStatus').style.display = 'block'
+        });
+
+        socket.on('showTied', function() {
+          document.getElementById('TiedStatus').style.display = 'block'
+        });
+
+        socket.on('restartGame', function() {
+          document.getElementById('WinnerStatus').style.display = 'none'
+          document.getElementById('TiedStatus').style.display = 'none'
+          document.getElementById('gameStarted').style.display = 'block'
+        });
+
+        //Game functions
+
+        function playerMove(playerOption) {
+          document.getElementById('gameStarted').style.display = 'none'
+          document.getElementById('waitMove').style.display = 'block'
+          socket.emit('playerMove', playerOption)
+          socket.emit('checkMoves')
+        }
+
+        function checkWinner(firstMove, secondMove) {
+          if (firstMove == 'paper_btn' && secondMove == 'scissor_btn') {
+            socket.emit('Winner', secondMove)
+          } else if (firstMove == 'scissor_btn' && secondMove == 'paper_btn') {
+            socket.emit('Winner', firstMove)
+          } else if (firstMove == 'scissor_btn' && secondMove == 'rock_btn') {
+            socket.emit('Winner', secondMove)
+          } else if (firstMove == 'rock_btn' && secondMove == 'scissor_btn') {
+            socket.emit('Winner', firstMove)
+          } else if (firstMove == 'rock_btn' && secondMove == 'paper_btn') {
+            socket.emit('Winner', secondMove)
+          } else if (firstMove == 'paper_btn' && secondMove == 'rock_btn') {
+            socket.emit('Winner', firstMove)
+          } else {
+            socket.emit('Tied')
+          }
+        }
+
+        function playAgain() {
+          socket.emit('playAgain')
+        }
+
+        function exitGame() {
+          socket.emit('checkPlayers')
+        }
+    </script>
+  </body>
+</html>

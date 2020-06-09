@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>RPS Online Game</title>
+    <style type="text/css">
+      body {
+        background-color: black;
+      }
+
+      h1 {
+        color: #53a2be;
+      }
+
+      /* Lobby Css */
+      .lobbycontent {
+        margin-top: 125px;
+        background-color: #0a2239;
+        width: fill;
+        height: 500px;
+        /*margin-left: 350px;*/
+        text-align: center;
+      }
+
+      #title {
+        font-family: Georgia, serif;
+        font-size: 50px;
+      }
+
+      #userName {
+        margin-top: 70px;
+        font-size: 30px;
+        width: 600px;
+        text-align: center;
+      }
+
+      #enter {
+        border-radius: 10px;
+        width: 600px;
+        height: 60px;
+        font-size: 40px;
+        margin-top: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="lobbycontent">
+      <center>
+        <h1 id="title">RPS Online Game</h1>
+        <form action="/match" method="POST">
+          <input id="userName" name="userNameInput" type="text" value="" placeholder="Name...">
+          <p></p>
+          <button id="enter" type="submit" name="button">Play Online</button>
+        </form>
+      </center>
+    </div>
+  </body>
+</html>
