@@ -5,6 +5,27 @@ function initialize() {
   socket.emit('checkPlayers')
 }
 
+/*
+function showPlayerList(players) {
+  for(let i=0; i < players[0].length; i++) {
+    if (i % 2 == 0) {
+      var table = document.getElementById("usersTable");
+      var row = table.insertRow(1);
+      row.setAttribute("id", `${players[0][i+1]}`)
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      cell1.innerHTML = players[0][i];
+      cell2.innerHTML = players[1][socket.io.engine.id];
+    }
+  }
+}
+
+function removePlayerList(playerID) {
+  var row = document.getElementById(String(playerID));
+  row.parentNode.removeChild(row);
+}
+*/
+
 function hideAll() {
   statsToHide = ['waitMove', 'gameStarted', 'WinnerStatus', 'TiedStatus']
   for(let i=0; i < statsToHide.length; i++) {
@@ -52,8 +73,17 @@ function showWinner(winner) {
 	'rock_btn': 'https://static.thenounproject.com/png/88661-200.png'
   }
 
-  document.getElementById('winnerimg').src = possibleWinners[winner]
+  document.getElementById('winnerimg').src = possibleWinners[winner[0]]
+  var row = document.getElementById(winner[1])
+  document.getElementById('winnerName').innerHTML = `► ${row.cells.item(0).innerHTML} ◄`
   document.getElementById('WinnerStatus').style.display = 'block'
+}
+
+function updateTable(winner) {
+  var row = document.getElementById(winner[1])
+  if (parseInt(winner[2]) % 2 == 0) {
+    row.cells.item(1).innerHTML = parseInt(winner[2] / 2);
+  }
 }
 
 function TiedStatus() {

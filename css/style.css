@@ -38,6 +38,13 @@ h1 {
 
 /* End Lobby CSS */
 
+
+.userList {
+  color: white;
+  margin-top: -450px;
+  margin-left: 25px;
+}
+
 #winnerp {
   font-size: 30px;
   color: green;
@@ -82,6 +89,11 @@ h1 {
   display: none;
 }
 
+#winnerName {
+  color: yellow;
+  font-size: 25px;
+}
+
 #WinnerStatus {
   display: none;
 }
@@ -98,7 +110,7 @@ h1 {
   color: green;
 }
 
-td {
+td,th {
   border: solid white 1px;
   padding: 0.5em;
   padding-right: 1em;

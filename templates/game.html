@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
-    {% block head %}
     <meta charset="utf-8">
     <title>RPS Online Game</title>
     <script src="/files/js/game.js"></script>
     <link rel="stylesheet" href="/style/css/style.css">
-    {% endblock %}
   </head>
   <body>
     <div class="lobbycontent">
@@ -34,6 +32,8 @@
         </div>
         <div id="WinnerStatus">
           <p id="winnerp"> WINNER: </p>
+          <p></p>
+          <p id="winnerName"></p>
           <table>
             <tr>
               <td><img id="winnerimg" src="#"></td>
@@ -57,11 +57,39 @@
       </form>
     </div>
 
+    <div class="userList">
+      <table id="usersTable">
+        <tr>
+          <th>Player</th>
+          <th>Wins</th>
+        </tr>
+      </table>
+    </div>
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
         var socket = io();
         socket.on('connect', function() {
           initialize()
+        });
+
+        socket.on('PlayerList', function(players) {
+          for(let i=0; i < players[0].length; i++) {
+            if (i % 2 == 0) {
+              var table = document.getElementById("usersTable");
+              var row = table.insertRow(1);
+              row.setAttribute("id", `${players[0][i+1]}`)
+              var cell1 = row.insertCell(0);
+              var cell2 = row.insertCell(1);
+              cell1.innerHTML = players[0][i];
+              cell2.innerHTML = players[1][socket.io.engine.id];
+            }
+          }
+        });
+
+        socket.on('removePlayerFromList', function(playerID) {
+          var row = document.getElementById(String(playerID));
+          row.parentNode.removeChild(row);
         });
 
         socket.on('playersOnline', function() {
@@ -78,6 +106,7 @@
 
         socket.on('showWinner', function(winner) {
           showWinner(winner)
+          updateTable(winner)
         });
 
         socket.on('showTied', function() {

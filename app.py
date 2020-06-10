@@ -9,6 +9,8 @@ socketio = SocketIO(app)
 
 players = []
 moveList = []
+playerPoints = {}
+movePoints = []
 
 @app.route("/")
 def index():
@@ -31,49 +33,58 @@ def game():
 	if request.method == 'GET':
 		return f"<center><h1><strong>ERROR: Please don't load this page directly.</strong></h1></center>"
 
-	#players.append(request.form['userNameInput'])
+	players.append(request.form['userNameInput'])
 	return render_template("game.html")
 
 # Sockets
 @socketio.on('addPlayer')
 def addPlayer():
 	players.append(request.sid)
+	playerPoints[request.sid] = 0
 	print('Players: ')
 	print(players)
+	print(playerPoints)
 	print()
+	if len(players) == 4:
+		emit('PlayerList', [players[2:4], playerPoints], broadcast=True)
+		emit('PlayerList', [players[0:2], playerPoints])
+	else:
+		emit('PlayerList', [players, playerPoints], broadcast=True)
 
 @app.route("/thanks", methods=['POST'])
-def removePlayer():
-	try:
-		players.pop()
-	except:
-		pass
-	print('Players: ')
-	print(players)
-	print()
-	socketio.emit('playersNOTOnline', broadcast=True)
+def exitButtonGame():
 	return "<style> body { background-color: black; } h1 { color: green; font-size: 50px; } button { border-radius: 6px; background-color: #53a2be; font-size: 35px; } #thanks { margin-top: 300px; }</style><center><div id=\"thanks\"><h1>Thanks for playing :]</h1><p></p><form action=\"/lobby\" method=\"POST\"><button type=\"submit\"> Lobby </button></form></div></center>"
 
 @socketio.on('checkPlayers')
 def checkPlayers():
-	if len(players) >= 2:
+	if len(players) >= 4:
 		emit('playersOnline', broadcast=True)
 
 @socketio.on('disconnect')
 def leaveGame():
 	try:
-		players.remove(request.sid)
-		print('Players: ')
-		print(players)
-		print()
+		removeID = movePoints.index(request.sid) - 1
+		movePoints.pop(removeID)
+		movePoints.remove(request.sid)
 	except:
 		pass
+	name = players.index(request.sid)
+	players.pop(name - 1)
+	players.remove(request.sid)
+	del playerPoints[request.sid]
+	print('Players: ')
+	print(players)
+	print(playerPoints)
+	print()
 	emit('playersNOTOnline', broadcast=True)
+	emit('removePlayerFromList', request.sid, broadcast=True)
 
 # Game sockets
 @socketio.on('playerMove')
 def playerMove(playerOption):
 	moveList.append(playerOption)
+	movePoints.append(playerOption)
+	movePoints.append(request.sid)
 	print('Move List: ')
 	print(moveList)
 	print()
@@ -86,9 +97,12 @@ def checkMoves():
 @socketio.on('Winner')
 def whoWon(winner):
 	print(f"{winner} has won the game!")
+	winnerID = movePoints.index(winner) + 1
+	playerPoints[str(movePoints[winnerID])] += 1
 	for move in moveList:
 		moveList.remove(move)
-	emit('showWinner', winner, broadcast=True)
+	emit('showWinner', [winner, str(movePoints[winnerID]), playerPoints[str(movePoints[winnerID])]], broadcast=True)
+	print(playerPoints)
 
 @socketio.on('Tied')
 def whoWon():
@@ -99,6 +113,9 @@ def whoWon():
 
 @socketio.on('playAgain')
 def playAgain():
+	removeID = movePoints.index(request.sid) - 1
+	movePoints.pop(removeID)
+	movePoints.remove(request.sid)
 	emit('restartGame', broadcast=True)
 
 if __name__ == '__main__':
