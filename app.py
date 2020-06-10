@@ -17,10 +17,6 @@ def index():
 def send_file(filename):
     return send_from_directory('js', 'game.js')
 
-@app.route("/script", methods=['GET'])
-def script():
-	return app.send_static_file('static/game.js')
-
 @app.route("/lobby", methods=['POST', 'GET'])
 def lobby():
 	return redirect(url_for('index'))
