@@ -4,6 +4,7 @@ from flask_socketio import SocketIO, send, emit
 
 app = Flask(__name__, static_url_path='/templates')
 app.config['SECRET_KEY'] = 'secret!'
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 socketio = SocketIO(app)
 
 players = []
@@ -13,9 +14,11 @@ moveList = []
 def index():
 	return render_template("lobby.html")
 
+
 @app.route('/files/<path:filename>')
 def send_file(filename):
     return send_from_directory('js', 'game.js')
+
 
 @app.route("/lobby", methods=['POST', 'GET'])
 def lobby():

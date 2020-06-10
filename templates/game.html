@@ -152,86 +152,32 @@
     <script type="text/javascript" charset="utf-8">
         var socket = io();
         socket.on('connect', function() {
-          socket.emit('addPlayer')
-          socket.emit('checkPlayers')
+          initialize()
         });
 
         socket.on('playersOnline', function() {
-          document.getElementById('waitStatus').style.display = 'none'
-          document.getElementById('gameStarted').style.display = 'block'
+          showAll()
         });
 
         socket.on('playersNOTOnline', function() {
-          document.getElementById('waitStatus').style.display = 'block'
-          document.getElementById('gameStarted').style.display = 'none'
-          document.getElementById('WinnerStatus').style.display = 'none'
-          document.getElementById('waitMove').style.display = 'none'
-           document.getElementById('TiedStatus').style.display = 'none'
+          hideAll()
         });
 
-
         socket.on('CheckWinner', function(moves) {
-          document.getElementById('waitMove').style.display = 'none'
-          console.log(moves[1]) // First
-          console.log(moves[0]) // Second
           checkWinner(String(moves[1]), String(moves[0]))
         });
 
         socket.on('showWinner', function(winner) {
-          if (winner == 'paper_btn') {
-            document.getElementById('winnerimg').src = 'https://static.thenounproject.com/png/477922-200.png'
-          } else if (winner == 'scissor_btn') {
-            document.getElementById('winnerimg').src = 'https://static.thenounproject.com/png/88666-200.png'
-          } else if (winner == 'rock_btn') {
-            document.getElementById('winnerimg').src = 'https://static.thenounproject.com/png/88661-200.png'
-          }
-          document.getElementById('WinnerStatus').style.display = 'block'
+          showWinner(winner)
         });
 
         socket.on('showTied', function() {
-          document.getElementById('TiedStatus').style.display = 'block'
+          TiedStatus()
         });
 
         socket.on('restartGame', function() {
-          document.getElementById('WinnerStatus').style.display = 'none'
-          document.getElementById('TiedStatus').style.display = 'none'
-          document.getElementById('gameStarted').style.display = 'block'
+          restartGame()
         });
-
-        //Game functions
-
-        function playerMove(playerOption) {
-          document.getElementById('gameStarted').style.display = 'none'
-          document.getElementById('waitMove').style.display = 'block'
-          socket.emit('playerMove', playerOption)
-          socket.emit('checkMoves')
-        }
-
-        function checkWinner(firstMove, secondMove) {
-          if (firstMove == 'paper_btn' && secondMove == 'scissor_btn') {
-            socket.emit('Winner', secondMove)
-          } else if (firstMove == 'scissor_btn' && secondMove == 'paper_btn') {
-            socket.emit('Winner', firstMove)
-          } else if (firstMove == 'scissor_btn' && secondMove == 'rock_btn') {
-            socket.emit('Winner', secondMove)
-          } else if (firstMove == 'rock_btn' && secondMove == 'scissor_btn') {
-            socket.emit('Winner', firstMove)
-          } else if (firstMove == 'rock_btn' && secondMove == 'paper_btn') {
-            socket.emit('Winner', secondMove)
-          } else if (firstMove == 'paper_btn' && secondMove == 'rock_btn') {
-            socket.emit('Winner', firstMove)
-          } else {
-            socket.emit('Tied')
-          }
-        }
-
-        function playAgain() {
-          socket.emit('playAgain')
-        }
-
-        function exitGame() {
-          socket.emit('checkPlayers')
-        }
     </script>
   </body>
 </html>
