@@ -14,11 +14,13 @@ moveList = []
 def index():
 	return render_template("lobby.html")
 
-
 @app.route('/files/<path:filename>')
 def send_file(filename):
     return send_from_directory('js', 'game.js')
 
+@app.route('/style/<path:filename>')
+def send_css_file(filename):
+    return send_from_directory('css', 'style.css')
 
 @app.route("/lobby", methods=['POST', 'GET'])
 def lobby():

@@ -1,0 +1,107 @@
+body {
+  background-color: black;
+}
+
+h1 {
+  color: #53a2be;
+}
+
+/* Start Lobby CSS */
+.lobbycontent {
+  margin-top: 125px;
+  background-color: #0a2239;
+  width: fill;
+  height: 500px;
+  /*margin-left: 350px;*/
+  text-align: center;
+}
+
+#title {
+  font-family: Georgia, serif;
+  font-size: 50px;
+}
+
+#userName {
+  margin-top: 70px;
+  font-size: 30px;
+  width: 600px;
+  text-align: center;
+}
+
+#enter {
+  border-radius: 10px;
+  width: 600px;
+  height: 60px;
+  font-size: 40px;
+  margin-top: 100px;
+}
+
+/* End Lobby CSS */
+
+#winnerp {
+  font-size: 30px;
+  color: green;
+  text-align: center;
+}
+
+#tiedp {
+  font-size: 50px;
+  color: yellow;
+  text-align: center;
+}
+
+#waitingMessage {
+  margin-top: 150px;
+  font-size: 50px;
+  width: 600px;
+  text-align: center;
+  color: red;
+}
+
+#waitStatus {
+  display: block;
+}
+
+#waitMove {
+  display: none;
+}
+
+#logout {
+  border-radius: 5px;
+  font-size: 20px;
+  background-color: #53a2be;
+  margin-left: 25px;
+}
+
+.logoutDiv {
+  margin-top: -50px;
+}
+
+#gameStarted {
+  margin-top: 80px;
+  display: none;
+}
+
+#WinnerStatus {
+  display: none;
+}
+
+#TiedStatus {
+  margin-top: 100px;
+  display: none;
+}
+
+#playAgain {
+  border-radius: 6px;
+  background-color: white;
+  font-size: 35px;
+  color: green;
+}
+
+td {
+  border: solid white 1px;
+  padding: 0.5em;
+  padding-right: 1em;
+  text-align: center;
+  background-color: #53a2be;
+}
