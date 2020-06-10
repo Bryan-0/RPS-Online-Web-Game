@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    {% block head %}
     <meta charset="utf-8">
     <title>RPS Online Game</title>
-    <script src="{{ url_for('static', filename = 'game.js') }}"></script>
+    <script src="/files/js/game.js"></script>
     <style type="text/css">
       body {
         background-color: black;
@@ -96,6 +97,7 @@
         background-color: #53a2be;
       }
     </style>
+    {% endblock %}
   </head>
   <body>
     <div class="lobbycontent">
@@ -147,8 +149,8 @@
     </div>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename = 'game.js') }}"></script>
     <script type="text/javascript" charset="utf-8">
+        help()
         var socket = io();
         socket.on('connect', function() {
           socket.emit('addPlayer')
@@ -156,15 +158,16 @@
         });
 
         socket.on('playersOnline', function() {
-          waiting = document.getElementById('waitStatus')
-          waiting.style.display = 'none'
+          document.getElementById('waitStatus').style.display = 'none'
           document.getElementById('gameStarted').style.display = 'block'
         });
 
         socket.on('playersNOTOnline', function() {
-          waiting = document.getElementById('waitStatus')
-          waiting.style.display = 'block'
+          document.getElementById('waitStatus').style.display = 'block'
           document.getElementById('gameStarted').style.display = 'none'
+          document.getElementById('WinnerStatus').style.display = 'none'
+          document.getElementById('waitMove').style.display = 'none'
+           document.getElementById('TiedStatus').style.display = 'none'
         });
 
 

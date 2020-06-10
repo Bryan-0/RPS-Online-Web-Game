@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, Response, request, redirect, url_for
+from flask import Flask, render_template, Response, request, redirect, url_for, send_from_directory
 from flask_socketio import SocketIO, send, emit
 
 app = Flask(__name__, static_url_path='/templates')
@@ -13,6 +13,14 @@ moveList = []
 def index():
 	return render_template("lobby.html")
 
+@app.route('/files/<path:filename>')
+def send_file(filename):
+    return send_from_directory('js', 'game.js')
+
+@app.route("/script", methods=['GET'])
+def script():
+	return app.send_static_file('static/game.js')
+
 @app.route("/lobby", methods=['POST', 'GET'])
 def lobby():
 	return redirect(url_for('index'))
@@ -22,6 +30,7 @@ def game():
 	if request.method == 'GET':
 		return f"<center><h1><strong>ERROR: Please don't load this page directly.</strong></h1></center>"
 
+	#players.append(request.form['userNameInput'])
 	return render_template("game.html")
 
 # Sockets
@@ -34,7 +43,10 @@ def addPlayer():
 
 @app.route("/thanks", methods=['POST'])
 def removePlayer():
-	players.pop()
+	try:
+		players.pop()
+	except:
+		pass
 	print('Players: ')
 	print(players)
 	print()
@@ -89,4 +101,4 @@ def playAgain():
 	emit('restartGame', broadcast=True)
 
 if __name__ == '__main__':
-	socketio.run(app)
+	socketio.run(app, debug=True)
