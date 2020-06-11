@@ -8,7 +8,6 @@ function initialize() {
   socket.emit('checkPlayers')
 }
 
-/*
 function showPlayerList(players) {
   for(let i=0; i < players[0].length; i++) {
     if (i % 2 == 0) {
@@ -18,7 +17,7 @@ function showPlayerList(players) {
       var cell1 = row.insertCell(0);
       var cell2 = row.insertCell(1);
       cell1.innerHTML = players[0][i];
-      cell2.innerHTML = players[1][socket.io.engine.id];
+      cell2.innerHTML = players[1][i+1];
     }
   }
 }
@@ -27,7 +26,6 @@ function removePlayerList(playerID) {
   var row = document.getElementById(String(playerID));
   row.parentNode.removeChild(row);
 }
-*/
 
 function hideAll() {
   statsToHide = ['waitMove', 'gameStarted', 'WinnerStatus', 'TiedStatus']

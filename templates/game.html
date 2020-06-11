@@ -74,22 +74,11 @@
         });
 
         socket.on('PlayerList', function(players) {
-          for(let i=0; i < players[0].length; i++) {
-            if (i % 2 == 0) {
-              var table = document.getElementById("usersTable");
-              var row = table.insertRow(1);
-              row.setAttribute("id", `${players[0][i+1]}`)
-              var cell1 = row.insertCell(0);
-              var cell2 = row.insertCell(1);
-              cell1.innerHTML = players[0][i];
-              cell2.innerHTML = players[1][i+1];
-            }
-          }
+          showPlayerList(players)
         });
 
         socket.on('removePlayerFromList', function(playerID) {
-          var row = document.getElementById(String(playerID));
-          row.parentNode.removeChild(row);
+           removePlayerList(playerID)
         });
 
         socket.on('playersOnline', function() {

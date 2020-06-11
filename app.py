@@ -9,7 +9,6 @@ socketio = SocketIO(app)
 
 class GlobalVars():
 	def __init__(self):
-		print("Started Global Variables")
 		self.players = []
 		self.moveList = []
 		self.playerPoints = []
@@ -50,10 +49,6 @@ def addPlayer():
 	globals_variables.players.append(request.sid)
 	globals_variables.playerPoints.append(request.sid)
 	globals_variables.playerPoints.append(0)
-	print('Players: ')
-	print(globals_variables.players)
-	print(globals_variables.playerPoints)
-	print()
 	if len(globals_variables.players) == 4:
 		emit('PlayerList', [globals_variables.players[2:4], globals_variables.playerPoints[2:4]], broadcast=True)
 		emit('PlayerList', [globals_variables.players[0:2], globals_variables.playerPoints[0:2]])
@@ -75,9 +70,6 @@ def playerMove(playerOption):
 	globals_variables.moveList.append(playerOption)
 	globals_variables.movePoints.append(playerOption)
 	globals_variables.movePoints.append(request.sid)
-	print('Move List: ')
-	print(globals_variables.moveList)
-	print()
 
 @socketio.on('checkMoves')
 def checkMoves():
@@ -86,8 +78,6 @@ def checkMoves():
 
 @socketio.on('Winner')
 def whoWon(winner):
-	print(f"{winner} has won the game!")
-
 	winnerID = globals_variables.movePoints.index(winner) + 1
 	ID = globals_variables.movePoints[winnerID]
 	winnerIndex = globals_variables.playerPoints.index(ID)
@@ -96,19 +86,7 @@ def whoWon(winner):
 	for move in globals_variables.moveList:
 		globals_variables.moveList.remove(move)
 
-	print("DEBUG DATA")
-	print(f"WINNER INDEX ID FROM MOVEPOINTS LIST: {winnerID}")
-	print(f"WINNER SOCKET ID: {ID}")
-	print(f"WINNER INDEX ID FROM PLAYERPOINTS LIST: {winnerIndex}")
-	print(f"WINNER POINTS TO ADD {globals_variables.playerPoints[winnerIndex]} = {globals_variables.playerPoints[winnerIndex + 1]}")
-	print(" ")
 	emit('showWinner', [winner, str(globals_variables.movePoints[winnerID]), globals_variables.playerPoints[winnerIndex+1]], broadcast=True)
-	#if roundFinished():
-		#clearPlayerPoints()
-		#emit('resetTable', globals_variables.players, broadcast=True)
-
-	print(globals_variables.playerPoints)
-	print(globals_variables.movePoints)
 
 @socketio.on('Tied')
 def whoWon():
@@ -119,27 +97,21 @@ def whoWon():
 
 @socketio.on('playAgain')
 def playAgain():
-	clearMovePoints()
+	removeMovePoints()
 	emit('restartGame', broadcast=True)
 
 @socketio.on('disconnect')
 def leaveGame():
-	name = globals_variables.players.index(request.sid)
-	globals_variables.players.pop(name - 1)
-	globals_variables.players.remove(request.sid)
-	name = globals_variables.playerPoints.index(request.sid)
-	globals_variables.playerPoints.pop(name + 1)
-	globals_variables.playerPoints.remove(request.sid)
-	globals_variables.movePoints = []
-	print('Players: ')
-	print(globals_variables.players)
-	print(globals_variables.playerPoints)
-	print(globals_variables.movePoints)
-	print()
+	clearPlayerPoints()
+	emit('resetTable', globals_variables.players, broadcast=True)
+	removePlayer()
+	removePlayerPoints()
+	removeMovePoints()
 	emit('playersNOTOnline', broadcast=True)
 	emit('removePlayerFromList', request.sid, broadcast=True)
 
 # Utility Functions
+
 def clearPlayerPoints():
 	index = 0
 	for item in globals_variables.playerPoints:
@@ -147,6 +119,7 @@ def clearPlayerPoints():
 			globals_variables.playerPoints[index] = 0
 		index += 1
 
+'''
 def roundFinished():
 	index = 0
 	for item in globals_variables.playerPoints:
@@ -155,10 +128,20 @@ def roundFinished():
 				return True
 		index += 1
 	return False
+'''
 
-def clearMovePoints():
+def removeMovePoints():
 	globals_variables.movePoints = []
 
+def removePlayer():
+	name = globals_variables.players.index(request.sid)
+	globals_variables.players.pop(name - 1)
+	globals_variables.players.remove(request.sid)
+
+def removePlayerPoints():
+	name = globals_variables.playerPoints.index(request.sid)
+	globals_variables.playerPoints.pop(name + 1)
+	globals_variables.playerPoints.remove(request.sid)
 
 if __name__ == '__main__':
 	socketio.run(app, debug=True)
