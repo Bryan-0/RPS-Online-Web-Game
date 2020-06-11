@@ -96,13 +96,19 @@ def whoWon(winner):
 	for move in globals_variables.moveList:
 		globals_variables.moveList.remove(move)
 
+	print("DEBUG DATA")
+	print(f"WINNER INDEX ID FROM MOVEPOINTS LIST: {winnerID}")
+	print(f"WINNER SOCKET ID: {ID}")
+	print(f"WINNER INDEX ID FROM PLAYERPOINTS LIST: {winnerIndex}")
+	print(f"WINNER POINTS TO ADD {globals_variables.playerPoints[winnerIndex]} = {globals_variables.playerPoints[winnerIndex + 1]}")
+	print(" ")
 	emit('showWinner', [winner, str(globals_variables.movePoints[winnerID]), globals_variables.playerPoints[winnerIndex+1]], broadcast=True)
-
-	if roundFinished():
-		clearPlayerPoints()
-		emit('resetTable', globals_variables.players, broadcast=True)
+	#if roundFinished():
+		#clearPlayerPoints()
+		#emit('resetTable', globals_variables.players, broadcast=True)
 
 	print(globals_variables.playerPoints)
+	print(globals_variables.movePoints)
 
 @socketio.on('Tied')
 def whoWon():
@@ -113,9 +119,7 @@ def whoWon():
 
 @socketio.on('playAgain')
 def playAgain():
-	removeID = globals_variables.movePoints.index(request.sid) - 1
-	globals_variables.movePoints.pop(removeID)
-	globals_variables.movePoints.remove(request.sid)
+	clearMovePoints()
 	emit('restartGame', broadcast=True)
 
 @socketio.on('disconnect')
@@ -151,6 +155,9 @@ def roundFinished():
 				return True
 		index += 1
 	return False
+
+def clearMovePoints():
+	globals_variables.movePoints = []
 
 
 if __name__ == '__main__':
