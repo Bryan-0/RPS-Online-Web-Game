@@ -1,3 +1,6 @@
+// Global Vars
+var winnerNick;
+
 // Game functions
 
 function initialize() {
@@ -77,6 +80,7 @@ function showWinner(winner) {
   var row = document.getElementById(winner[1])
   document.getElementById('winnerName').innerHTML = `► ${row.cells.item(0).innerHTML} ◄`
   document.getElementById('WinnerStatus').style.display = 'block'
+  winnerNick = row.cells.item(0).innerHTML
 }
 
 function updateTable(winner) {
@@ -100,6 +104,16 @@ function restartGame() {
   	document.getElementById(statsToHide[i]).style.display = 'none'
   }
   document.getElementById('gameStarted').style.display = 'block'
+}
+
+function resetTable(players) {
+  for(let i = 0; i < players.length; i++) {
+    if (i % 2 != 0) {
+      var pointsRow = document.getElementById(players[i])
+      pointsRow.cells.item(1).innerHTML = 0
+    }
+  }
+  //alert(`► ${winnerNick} ◄ Won the round!`);
 }
 
 function exitGame() {

@@ -82,7 +82,7 @@
               var cell1 = row.insertCell(0);
               var cell2 = row.insertCell(1);
               cell1.innerHTML = players[0][i];
-              cell2.innerHTML = players[1][socket.io.engine.id];
+              cell2.innerHTML = players[1][i+1];
             }
           }
         });
@@ -115,6 +115,10 @@
 
         socket.on('restartGame', function() {
           restartGame()
+        });
+
+        socket.on('resetTable', function(players) {
+          resetTable(players)
         });
     </script>
   </body>
