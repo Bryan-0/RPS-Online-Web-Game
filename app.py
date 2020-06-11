@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, Response, request, redirect, url_for, send_from_directory
 from flask_socketio import SocketIO, send, emit
+import time
 
 app = Flask(__name__, static_url_path='/templates')
 app.config['SECRET_KEY'] = 'secret!'
@@ -9,6 +10,7 @@ socketio = SocketIO(app)
 
 class GlobalVars():
 	def __init__(self):
+		self.startTimer = time.time()
 		self.players = []
 		self.moveList = []
 		self.playerPoints = []
@@ -18,7 +20,7 @@ globals_variables = GlobalVars()
 
 @app.route("/")
 def index():
-	return render_template("lobby.html")
+	return render_template("lobby.html", uptimeData = round(abs(globals_variables.startTimer - time.time()), 2))
 
 @app.route('/files/<path:filename>')
 def send_file(filename):
@@ -36,6 +38,9 @@ def lobby():
 def game():
 	if request.method == 'GET':
 		return "<style> body { background-color: black; } h1 { color: red; font-size: 50px; } button { border-radius: 6px; background-color: #53a2be; font-size: 35px; } #thanks { margin-top: 300px; }</style><center><div id=\"thanks\"><h1>ERROR: Don't load this page directly.</h1><p></p><form action=\"/lobby\" method=\"POST\"><button type=\"submit\"> Lobby </button></form></div></center>"
+
+	if str(request.form['userNameInput']) == "bot252525":
+		return "BOT252525"
 
 	if len(globals_variables.players) >= 4:
 		return "<style> body { background-color: black; } h1 { color: red; font-size: 50px; } button { border-radius: 6px; background-color: #53a2be; font-size: 35px; } #thanks { margin-top: 300px; }</style><center><div id=\"thanks\"><h1>ERROR: There is already a match in progress :[</h1><p></p><form action=\"/lobby\" method=\"POST\"><button type=\"submit\"> Lobby </button></form></div></center>"
