@@ -7,10 +7,15 @@ app.config['SECRET_KEY'] = 'secret!'
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 socketio = SocketIO(app)
 
-players = []
-moveList = []
-playerPoints = {}
-movePoints = []
+class GlobalVars():
+	def __init__(self):
+		print("Started Global Variables")
+		self.players = []
+		self.moveList = []
+		self.playerPoints = {}
+		self.movePoints = []
+
+globals_variables = GlobalVars()
 
 @app.route("/")
 def index():
@@ -33,23 +38,23 @@ def game():
 	if request.method == 'GET':
 		return f"<center><h1><strong>ERROR: Please don't load this page directly.</strong></h1></center>"
 
-	players.append(request.form['userNameInput'])
+	globals_variables.players.append(request.form['userNameInput'])
 	return render_template("game.html")
 
 # Sockets
 @socketio.on('addPlayer')
 def addPlayer():
-	players.append(request.sid)
-	playerPoints[request.sid] = 0
+	globals_variables.players.append(request.sid)
+	globals_variables.playerPoints[request.sid] = 0
 	print('Players: ')
-	print(players)
-	print(playerPoints)
+	print(globals_variables.players)
+	print(globals_variables.playerPoints)
 	print()
-	if len(players) == 4:
-		emit('PlayerList', [players[2:4], playerPoints], broadcast=True)
-		emit('PlayerList', [players[0:2], playerPoints])
+	if len(globals_variables.players) == 4:
+		emit('PlayerList', [globals_variables.players[2:4], globals_variables.playerPoints], broadcast=True)
+		emit('PlayerList', [globals_variables.players[0:2], globals_variables.playerPoints])
 	else:
-		emit('PlayerList', [players, playerPoints], broadcast=True)
+		emit('PlayerList', [globals_variables.players, globals_variables.playerPoints], broadcast=True)
 
 @app.route("/thanks", methods=['POST'])
 def exitButtonGame():
@@ -57,66 +62,62 @@ def exitButtonGame():
 
 @socketio.on('checkPlayers')
 def checkPlayers():
-	if len(players) >= 4:
+	if len(globals_variables.players) >= 4:
 		emit('playersOnline', broadcast=True)
-
-@socketio.on('disconnect')
-def leaveGame():
-	try:
-		removeID = movePoints.index(request.sid) - 1
-		movePoints.pop(removeID)
-		movePoints.remove(request.sid)
-	except:
-		pass
-	name = players.index(request.sid)
-	players.pop(name - 1)
-	players.remove(request.sid)
-	del playerPoints[request.sid]
-	print('Players: ')
-	print(players)
-	print(playerPoints)
-	print()
-	emit('playersNOTOnline', broadcast=True)
-	emit('removePlayerFromList', request.sid, broadcast=True)
 
 # Game sockets
 @socketio.on('playerMove')
 def playerMove(playerOption):
-	moveList.append(playerOption)
-	movePoints.append(playerOption)
-	movePoints.append(request.sid)
+	globals_variables.moveList.append(playerOption)
+	globals_variables.movePoints.append(playerOption)
+	globals_variables.movePoints.append(request.sid)
 	print('Move List: ')
-	print(moveList)
+	print(globals_variables.moveList)
 	print()
 
 @socketio.on('checkMoves')
 def checkMoves():
-	if len(moveList) >= 2:
-		emit('CheckWinner', moveList[::-1], broadcast=True)
+	if len(globals_variables.moveList) >= 2:
+		emit('CheckWinner', globals_variables.moveList[::-1], broadcast=True)
 
 @socketio.on('Winner')
 def whoWon(winner):
 	print(f"{winner} has won the game!")
-	winnerID = movePoints.index(winner) + 1
-	playerPoints[str(movePoints[winnerID])] += 1
-	for move in moveList:
-		moveList.remove(move)
-	emit('showWinner', [winner, str(movePoints[winnerID]), playerPoints[str(movePoints[winnerID])]], broadcast=True)
-	print(playerPoints)
+	winnerID = globals_variables.movePoints.index(winner) + 1
+	globals_variables.playerPoints[str(globals_variables.movePoints[winnerID])] += 1
+	for move in globals_variables.moveList:
+		globals_variables.moveList.remove(move)
+	emit('showWinner', [winner, str(globals_variables.movePoints[winnerID]), globals_variables.playerPoints[str(globals_variables.movePoints[winnerID])]], broadcast=True)
+	print(globals_variables.playerPoints)
 
 @socketio.on('Tied')
 def whoWon():
 	print("The match is tied!")
-	for move in moveList:
-		moveList.remove(move)
+	for move in globals_variables.moveList:
+		globals_variables.moveList.remove(move)
 	emit('showTied', broadast=True)
 
 @socketio.on('playAgain')
 def playAgain():
-	removeID = movePoints.index(request.sid) - 1
-	movePoints.pop(removeID)
-	movePoints.remove(request.sid)
+	removeID = globals_variables.movePoints.index(request.sid) - 1
+	globals_variables.movePoints.pop(removeID)
+	globals_variables.movePoints.remove(request.sid)
 	emit('restartGame', broadcast=True)
+
+@socketio.on('disconnect')
+def leaveGame():
+	name = globals_variables.players.index(request.sid)
+	globals_variables.players.pop(name - 1)
+	globals_variables.players.remove(request.sid)
+	del globals_variables.playerPoints[request.sid]
+	globals_variables.movePoints = []
+	print('Players: ')
+	print(globals_variables.players)
+	print(globals_variables.playerPoints)
+	print(globals_variables.movePoints)
+	print()
+	emit('playersNOTOnline', broadcast=True)
+	emit('removePlayerFromList', request.sid, broadcast=True)
 
 if __name__ == '__main__':
 	socketio.run(app, debug=True)
