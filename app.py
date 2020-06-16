@@ -94,7 +94,7 @@ def whoWon(winner):
 	emit('showWinner', [winner, str(globals_variables.movePoints[winnerID]), globals_variables.playerPoints[winnerIndex+1]], broadcast=True)
 
 @socketio.on('Tied')
-def whoWon():
+def whoTied():
 	print("The match is tied!")
 	for move in globals_variables.moveList:
 		globals_variables.moveList.remove(move)
@@ -149,4 +149,4 @@ def removePlayerPoints():
 	globals_variables.playerPoints.remove(request.sid)
 
 if __name__ == '__main__':
-	socketio.run(app, debug=True)
+	socketio.run(app, debug=True, host='0.0.0.0')
